@@ -1,0 +1,51 @@
+# Build artifacts (C/C++)
+/build/
+/dist/
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dll
+*.dylib
+*.exe
+*.out
+*.d
+
+# Coverage and sanitizer leftovers
+*.gcda
+*.gcno
+*.gcov
+*.profraw
+*.profdata
+
+# Runtime crash dumps
+core
+core.*
+*.stackdump
+
+# Generated benchmark/result data files
+*.DAT
+*.DAT~
+/results/*.csv
+
+# Keep generated visual/report assets if desired
+# (remove these negations if you prefer to ignore all results output)
+!/results/benchmark_plot.svg
+!/results/benchmark_report.md
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# IDE/editor local files
+.vscode/
+.idea/
+
+# NetBeans local/private configuration
+/nbproject/private/
+
+# OS files
+.DS_Store
+Thumbs.db

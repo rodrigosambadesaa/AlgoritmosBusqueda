@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="650">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="550.0" y="30" text-anchor="middle" font-size="22" fill="#111">Benchmark de busquedas sobre BigDecimal</text>
+<line x1="90" y1="570.00" x2="1070" y2="570.00" stroke="#e5e7eb" stroke-width="1"/>
+<text x="80" y="574.00" text-anchor="end" font-size="12" fill="#374151">0.0s</text>
+<line x1="90" y1="466.00" x2="1070" y2="466.00" stroke="#e5e7eb" stroke-width="1"/>
+<text x="80" y="470.00" text-anchor="end" font-size="12" fill="#374151">7.5s</text>
+<line x1="90" y1="362.00" x2="1070" y2="362.00" stroke="#e5e7eb" stroke-width="1"/>
+<text x="80" y="366.00" text-anchor="end" font-size="12" fill="#374151">15.0s</text>
+<line x1="90" y1="258.00" x2="1070" y2="258.00" stroke="#e5e7eb" stroke-width="1"/>
+<text x="80" y="262.00" text-anchor="end" font-size="12" fill="#374151">22.5s</text>
+<line x1="90" y1="154.00" x2="1070" y2="154.00" stroke="#e5e7eb" stroke-width="1"/>
+<text x="80" y="158.00" text-anchor="end" font-size="12" fill="#374151">30.0s</text>
+<line x1="90" y1="50.00" x2="1070" y2="50.00" stroke="#e5e7eb" stroke-width="1"/>
+<text x="80" y="54.00" text-anchor="end" font-size="12" fill="#374151">37.5s</text>
+<line x1="90.00" y1="50" x2="90.00" y2="570" stroke="#f3f4f6" stroke-width="1"/>
+<text x="90.00" y="590" text-anchor="middle" font-size="11" fill="#374151">1000</text>
+<line x1="90.18" y1="50" x2="90.18" y2="570" stroke="#f3f4f6" stroke-width="1"/>
+<text x="90.18" y="590" text-anchor="middle" font-size="11" fill="#374151">10000</text>
+<line x1="91.94" y1="50" x2="91.94" y2="570" stroke="#f3f4f6" stroke-width="1"/>
+<text x="91.94" y="590" text-anchor="middle" font-size="11" fill="#374151">100000</text>
+<line x1="99.78" y1="50" x2="99.78" y2="570" stroke="#f3f4f6" stroke-width="1"/>
+<text x="99.78" y="590" text-anchor="middle" font-size="11" fill="#374151">500000</text>
+<line x1="109.58" y1="50" x2="109.58" y2="570" stroke="#f3f4f6" stroke-width="1"/>
+<text x="109.58" y="590" text-anchor="middle" font-size="11" fill="#374151">1000000</text>
+<line x1="187.98" y1="50" x2="187.98" y2="570" stroke="#f3f4f6" stroke-width="1"/>
+<text x="187.98" y="590" text-anchor="middle" font-size="11" fill="#374151">5000000</text>
+<line x1="1070.00" y1="50" x2="1070.00" y2="570" stroke="#f3f4f6" stroke-width="1"/>
+<text x="1070.00" y="590" text-anchor="middle" font-size="11" fill="#374151">50000000</text>
+<line x1="90" y1="570" x2="1070" y2="570" stroke="#111" stroke-width="1.5"/>
+<line x1="90" y1="50" x2="90" y2="570" stroke="#111" stroke-width="1.5"/>
+<text x="550.0" y="630" text-anchor="middle" font-size="14" fill="#111">Tamano del vector (n)</text>
+<text x="25" y="325.0" transform="rotate(-90 25 325.0)" text-anchor="middle" font-size="14" fill="#111">Tiempo (segundos)</text>
+<polyline points="90.00,568.81 90.18,547.49 91.94,479.76 99.78,310.95" fill="none" stroke="#1f77b4" stroke-width="2.5"/>
+<circle cx="90.00" cy="568.81" r="4" fill="#1f77b4"/>
+<circle cx="90.18" cy="547.49" r="4" fill="#1f77b4"/>
+<circle cx="91.94" cy="479.76" r="4" fill="#1f77b4"/>
+<circle cx="99.78" cy="310.95" r="4" fill="#1f77b4"/>
+<line x1="104.58" y1="133.87" x2="114.58" y2="143.87" stroke="#1f77b4" stroke-width="2"/>
+<line x1="104.58" y1="143.87" x2="114.58" y2="133.87" stroke="#1f77b4" stroke-width="2"/>
+<line x1="182.98" y1="118.31" x2="192.98" y2="128.31" stroke="#1f77b4" stroke-width="2"/>
+<line x1="182.98" y1="128.31" x2="192.98" y2="118.31" stroke="#1f77b4" stroke-width="2"/>
+<line x1="1065.00" y1="82.19" x2="1075.00" y2="92.19" stroke="#1f77b4" stroke-width="2"/>
+<line x1="1065.00" y1="92.19" x2="1075.00" y2="82.19" stroke="#1f77b4" stroke-width="2"/>
+<rect x="770" y="55" width="14" height="14" fill="#1f77b4"/>
+<text x="790" y="67" font-size="13" fill="#111">Secuencial</text>
+<polyline points="90.00,568.80 90.18,557.20 91.94,456.45 99.78,272.85" fill="none" stroke="#ff7f0e" stroke-width="2.5"/>
+<circle cx="90.00" cy="568.80" r="4" fill="#ff7f0e"/>
+<circle cx="90.18" cy="557.20" r="4" fill="#ff7f0e"/>
+<circle cx="91.94" cy="456.45" r="4" fill="#ff7f0e"/>
+<circle cx="99.78" cy="272.85" r="4" fill="#ff7f0e"/>
+<line x1="104.58" y1="51.17" x2="114.58" y2="61.17" stroke="#ff7f0e" stroke-width="2"/>
+<line x1="104.58" y1="61.17" x2="114.58" y2="51.17" stroke="#ff7f0e" stroke-width="2"/>
+<line x1="182.98" y1="45.00" x2="192.98" y2="55.00" stroke="#ff7f0e" stroke-width="2"/>
+<line x1="182.98" y1="55.00" x2="192.98" y2="45.00" stroke="#ff7f0e" stroke-width="2"/>
+<line x1="1065.00" y1="77.85" x2="1075.00" y2="87.85" stroke="#ff7f0e" stroke-width="2"/>
+<line x1="1065.00" y1="87.85" x2="1075.00" y2="77.85" stroke="#ff7f0e" stroke-width="2"/>
+<rect x="770" y="77" width="14" height="14" fill="#ff7f0e"/>
+<text x="790" y="89" font-size="13" fill="#111">Secuencial+Centinela</text>
+<polyline points="90.00,569.97 90.18,569.95 91.94,569.92 99.78,569.86 109.58,569.68 187.98,567.50 1070.00,530.30" fill="none" stroke="#2ca02c" stroke-width="2.5"/>
+<circle cx="90.00" cy="569.97" r="4" fill="#2ca02c"/>
+<circle cx="90.18" cy="569.95" r="4" fill="#2ca02c"/>
+<circle cx="91.94" cy="569.92" r="4" fill="#2ca02c"/>
+<circle cx="99.78" cy="569.86" r="4" fill="#2ca02c"/>
+<circle cx="109.58" cy="569.68" r="4" fill="#2ca02c"/>
+<circle cx="187.98" cy="567.50" r="4" fill="#2ca02c"/>
+<circle cx="1070.00" cy="530.30" r="4" fill="#2ca02c"/>
+<rect x="770" y="99" width="14" height="14" fill="#2ca02c"/>
+<text x="790" y="111" font-size="13" fill="#111">Binaria</text>
+</svg>
