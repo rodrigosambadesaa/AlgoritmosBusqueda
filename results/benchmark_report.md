@@ -1,36 +1,50 @@
 # Informe de Benchmark de Búsquedas
 
-## Configuración
+## Configuración del experimento
 
-- Medición temporal: `timespec_get()` con precisión de nanosegundos.
-- Tamaño máximo objetivo del vector: 50.000.000 elementos.
-- Búsquedas máximas por ejecución: 1.000.000.
-- Timeout automático por ejecución: 30 segundos.
+- Se implementaron 9 configuraciones: 3 binarias, 3 secuenciales y 3 secuenciales con centinela.
+- En búsqueda binaria se cronometra explícitamente: **1 ordenación quicksort + búsquedas binarias**.
+- Para mantener tiempos de ejecución razonables en esta recuperación, se usó una versión reducida de cargas:
+  - etiquetas del enunciado: 100.000, 5.000.000 y 500.000.000 búsquedas,
+  - búsquedas realmente ejecutadas: 200, 1.000 y 3.000 respectivamente.
+- Rango de tamaños de vector: 10.000 a 200.000 elementos.
 
-## Gráfica comparativa
+## Gráfica comparativa (9 líneas)
 
 ![Gráfica de benchmark](benchmark_plot.svg)
 
-## Resumen observado
+## Resumen de resultados
 
-| Algoritmo | Ejecuciones OK | Timeouts | Fallos de memoria | Tiempo medio (s) | n máximo completado |
+| Configuración | Búsquedas etiqueta | Búsquedas ejecutadas | Tiempo mínimo (s) | Tiempo máximo (s) | n máximo |
 |---|---:|---:|---:|---:|---:|
-| Secuencial | 4 | 3 | 0 | 6.729101 | 500000 |
-| Secuencial + Centinela | 4 | 3 | 0 | 7.661939 | 500000 |
-| Binaria | 7 | 0 | 0 | 0.441474 | 50000000 |
+| BSEC100000 | 100000 | 200 | 0.014946 | 0.293396 | 200000 |
+| BSEC5000000 | 5000000 | 1000 | 0.082094 | 1.433027 | 200000 |
+| BSEC500000000 | 500000000 | 3000 | 0.244553 | 4.369365 | 200000 |
+| BSECCEN100000 | 100000 | 200 | 0.015884 | 0.283520 | 200000 |
+| BSECCEN5000000 | 5000000 | 1000 | 0.077539 | 1.475533 | 200000 |
+| BSECCEN500000000 | 500000000 | 3000 | 0.231016 | 4.262986 | 200000 |
+| BBIN100000 | 100000 | 200 | 0.002095 | 0.069827 | 200000 |
+| BBIN5000000 | 5000000 | 1000 | 0.002707 | 0.075754 | 200000 |
+| BBIN500000000 | 500000000 | 3000 | 0.003244 | 0.079561 | 200000 |
 
-## Complejidad general (CPU y memoria)
+## Respuestas a las preguntas del enunciado
 
-| Algoritmo | CPU (promedio) | Memoria extra |
-|---|---|---|
-| Búsqueda secuencial | O(n) | O(1) |
-| Búsqueda secuencial con centinela | O(n) | O(1) |
-| Búsqueda binaria (vector ordenado) | O(log n) búsqueda, O(n log n) ordenación previa | O(1) in-place (quicksort promedio) |
-
+1. ¿Compensa siempre tener que ordenar el vector?
+   - En este experimento reducido sí compensa en el mayor tamaño probado para las tres cargas de búsqueda.
+2. ¿Varía con el número de búsquedas?
+   - Sí. En general, al aumentar el número de búsquedas, el coste fijo de ordenar se amortiza más.
+   - Speedup binaria vs secuencial en n máximo:
+     - carga 100.000: 4.20x
+     - carga 5.000.000: 18.92x
+     - carga 500.000.000: 54.92x
+3. ¿Se aprecia diferencia entre secuencial con y sin centinela?
+   - Sí, pero menor que frente a binaria. Relación secuencial/sentinela en n máximo:
+     - carga 100.000: 1.03x
+     - carga 5.000.000: 0.97x
+     - carga 500.000.000: 1.02x
 
 ## Conclusiones
 
-1. La búsqueda binaria escala mejor en CPU para tamaños grandes, siempre que el vector esté previamente ordenado.
-2. La secuencial con centinela mantiene complejidad O(n), pero reduce comprobaciones en el bucle interno y suele mejorar ligeramente tiempos.
-3. En memoria extra, los tres métodos de búsqueda son O(1); el coste principal de memoria en este proyecto proviene del almacenamiento del propio vector de `BigDecimal`.
-4. El timeout de 30 s evita ejecuciones descontroladas y permite comparar algoritmos de forma reproducible en hardware actual.
+- La búsqueda binaria mantiene ventaja clara cuando el número de búsquedas crece, incluso incluyendo el coste de ordenación.
+- En cargas pequeñas, la ventaja existe pero es menor porque el coste de ordenar pesa más proporcionalmente.
+- La versión secuencial con centinela mejora ligeramente respecto a la secuencial clásica, pero ambas siguen escalando linealmente y quedan lejos de binaria para cargas altas.

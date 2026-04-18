@@ -128,7 +128,7 @@ BENCH_SRCS=main.c dynamic_vector.c search.c quick_sort.c big_decimal.c
 
 benchmark: ${BENCH_EXE}
 	@echo "Ejecutando benchmark rapido..."
-	@./${BENCH_EXE}
+	@./${BENCH_EXE} --all
 
 ${BENCH_EXE}: ${BENCH_SRCS}
 	${MKDIR} -p build/bench

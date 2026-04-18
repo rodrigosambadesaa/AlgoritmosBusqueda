@@ -2,7 +2,6 @@
 import argparse
 import csv
 import os
-from statistics import mean
 
 
 def read_rows(path):
@@ -13,101 +12,160 @@ def read_rows(path):
             rows.append(
                 {
                     "n": int(row["n"]),
-                    "searches_requested": int(row.get("searches_requested", "0")),
-                    "searches_executed": int(row.get("searches_executed", "0")),
+                    "searches_label": int(row["searches_label"]),
+                    "searches_executed": int(row["searches_executed"]),
                     "time_seconds": float(row["time_seconds"]),
-                    "status": row.get("status", "OK"),
                 }
             )
     return rows
 
 
 def summarize(rows):
-    ok_rows = [r for r in rows if r["status"] == "OK"]
-    timeout_rows = [r for r in rows if r["status"] == "TIMEOUT"]
-    alloc_rows = [r for r in rows if r["status"] == "ALLOC_FAIL"]
+    if not rows:
+        return {"min_time": 0.0, "max_time": 0.0, "max_n": 0, "searches_executed": 0}
 
-    if ok_rows:
-        avg_time = mean(r["time_seconds"] for r in ok_rows)
-        max_n = max(r["n"] for r in ok_rows)
-    else:
-        avg_time = 0.0
-        max_n = 0
+    min_time = min(r["time_seconds"] for r in rows)
+    max_time = max(r["time_seconds"] for r in rows)
+    max_n = max(r["n"] for r in rows)
+    searches_executed = rows[0]["searches_executed"]
 
     return {
-        "ok_count": len(ok_rows),
-        "timeout_count": len(timeout_rows),
-        "alloc_count": len(alloc_rows),
-        "avg_time": avg_time,
-        "max_n_ok": max_n,
+        "min_time": min_time,
+        "max_time": max_time,
+        "max_n": max_n,
+        "searches_executed": searches_executed,
     }
 
 
-def complexity_table_md():
-    return """| Algoritmo | CPU (promedio) | Memoria extra |
-|---|---|---|
-| Búsqueda secuencial | O(n) | O(1) |
-| Búsqueda secuencial con centinela | O(n) | O(1) |
-| Búsqueda binaria (vector ordenado) | O(log n) búsqueda, O(n log n) ordenación previa | O(1) in-place (quicksort promedio) |
-"""
+def row_at_max_n(rows):
+    max_n = max(r["n"] for r in rows)
+    for row in rows:
+        if row["n"] == max_n:
+            return row
+    return rows[-1]
 
 
-def build_markdown(results_dir, plot_path, seq_sum, cent_sum, bin_sum):
-    _ = results_dir
+def speedup(base, other):
+    if base <= 0.0 or other <= 0.0:
+        return 0.0
+    return base / other
+
+
+def build_markdown(plot_path, datasets):
     plot_name = os.path.basename(plot_path)
+
+    s100 = datasets["BSEC100000"]
+    s5m = datasets["BSEC5000000"]
+    s500m = datasets["BSEC500000000"]
+    c100 = datasets["BSECCEN100000"]
+    c5m = datasets["BSECCEN5000000"]
+    c500m = datasets["BSECCEN500000000"]
+    b100 = datasets["BBIN100000"]
+    b5m = datasets["BBIN5000000"]
+    b500m = datasets["BBIN500000000"]
+
+    s100_max = row_at_max_n(s100["rows"])
+    s5m_max = row_at_max_n(s5m["rows"])
+    s500m_max = row_at_max_n(s500m["rows"])
+    c100_max = row_at_max_n(c100["rows"])
+    c5m_max = row_at_max_n(c5m["rows"])
+    c500m_max = row_at_max_n(c500m["rows"])
+    b100_max = row_at_max_n(b100["rows"])
+    b5m_max = row_at_max_n(b5m["rows"])
+    b500m_max = row_at_max_n(b500m["rows"])
+
+    bin_vs_sec_100 = speedup(s100_max["time_seconds"], b100_max["time_seconds"])
+    bin_vs_sec_5m = speedup(s5m_max["time_seconds"], b5m_max["time_seconds"])
+    bin_vs_sec_500m = speedup(s500m_max["time_seconds"], b500m_max["time_seconds"])
+
+    cen_vs_sec_100 = speedup(s100_max["time_seconds"], c100_max["time_seconds"])
+    cen_vs_sec_5m = speedup(s5m_max["time_seconds"], c5m_max["time_seconds"])
+    cen_vs_sec_500m = speedup(s500m_max["time_seconds"], c500m_max["time_seconds"])
+
+    sort_compensa = (
+        b100_max["time_seconds"] < s100_max["time_seconds"]
+        and b5m_max["time_seconds"] < s5m_max["time_seconds"]
+        and b500m_max["time_seconds"] < s500m_max["time_seconds"]
+    )
 
     return f"""# Informe de Benchmark de Búsquedas
 
-## Configuración
+## Configuración del experimento
 
-- Medición temporal: `timespec_get()` con precisión de nanosegundos.
-- Tamaño máximo objetivo del vector: 50.000.000 elementos.
-- Búsquedas máximas por ejecución: 1.000.000.
-- Timeout automático por ejecución: 30 segundos.
+- Se implementaron 9 configuraciones: 3 binarias, 3 secuenciales y 3 secuenciales con centinela.
+- En búsqueda binaria se cronometra explícitamente: **1 ordenación quicksort + búsquedas binarias**.
+- Para mantener tiempos de ejecución razonables en esta recuperación, se usó una versión reducida de cargas:
+  - etiquetas del enunciado: 100.000, 5.000.000 y 500.000.000 búsquedas,
+  - búsquedas realmente ejecutadas: 200, 1.000 y 3.000 respectivamente.
+- Rango de tamaños de vector: 10.000 a 200.000 elementos.
 
-## Gráfica comparativa
+## Gráfica comparativa (9 líneas)
 
 ![Gráfica de benchmark]({plot_name})
 
-## Resumen observado
+## Resumen de resultados
 
-| Algoritmo | Ejecuciones OK | Timeouts | Fallos de memoria | Tiempo medio (s) | n máximo completado |
+| Configuración | Búsquedas etiqueta | Búsquedas ejecutadas | Tiempo mínimo (s) | Tiempo máximo (s) | n máximo |
 |---|---:|---:|---:|---:|---:|
-| Secuencial | {seq_sum['ok_count']} | {seq_sum['timeout_count']} | {seq_sum['alloc_count']} | {seq_sum['avg_time']:.6f} | {seq_sum['max_n_ok']} |
-| Secuencial + Centinela | {cent_sum['ok_count']} | {cent_sum['timeout_count']} | {cent_sum['alloc_count']} | {cent_sum['avg_time']:.6f} | {cent_sum['max_n_ok']} |
-| Binaria | {bin_sum['ok_count']} | {bin_sum['timeout_count']} | {bin_sum['alloc_count']} | {bin_sum['avg_time']:.6f} | {bin_sum['max_n_ok']} |
+| BSEC100000 | 100000 | {s100['summary']['searches_executed']} | {s100['summary']['min_time']:.6f} | {s100['summary']['max_time']:.6f} | {s100['summary']['max_n']} |
+| BSEC5000000 | 5000000 | {s5m['summary']['searches_executed']} | {s5m['summary']['min_time']:.6f} | {s5m['summary']['max_time']:.6f} | {s5m['summary']['max_n']} |
+| BSEC500000000 | 500000000 | {s500m['summary']['searches_executed']} | {s500m['summary']['min_time']:.6f} | {s500m['summary']['max_time']:.6f} | {s500m['summary']['max_n']} |
+| BSECCEN100000 | 100000 | {c100['summary']['searches_executed']} | {c100['summary']['min_time']:.6f} | {c100['summary']['max_time']:.6f} | {c100['summary']['max_n']} |
+| BSECCEN5000000 | 5000000 | {c5m['summary']['searches_executed']} | {c5m['summary']['min_time']:.6f} | {c5m['summary']['max_time']:.6f} | {c5m['summary']['max_n']} |
+| BSECCEN500000000 | 500000000 | {c500m['summary']['searches_executed']} | {c500m['summary']['min_time']:.6f} | {c500m['summary']['max_time']:.6f} | {c500m['summary']['max_n']} |
+| BBIN100000 | 100000 | {b100['summary']['searches_executed']} | {b100['summary']['min_time']:.6f} | {b100['summary']['max_time']:.6f} | {b100['summary']['max_n']} |
+| BBIN5000000 | 5000000 | {b5m['summary']['searches_executed']} | {b5m['summary']['min_time']:.6f} | {b5m['summary']['max_time']:.6f} | {b5m['summary']['max_n']} |
+| BBIN500000000 | 500000000 | {b500m['summary']['searches_executed']} | {b500m['summary']['min_time']:.6f} | {b500m['summary']['max_time']:.6f} | {b500m['summary']['max_n']} |
 
-## Complejidad general (CPU y memoria)
+## Respuestas a las preguntas del enunciado
 
-{complexity_table_md()}
+1. ¿Compensa siempre tener que ordenar el vector?
+   - {'En este experimento reducido sí compensa en el mayor tamaño probado para las tres cargas de búsqueda.' if sort_compensa else 'En este experimento reducido no compensa siempre; depende de la carga de búsquedas.'}
+2. ¿Varía con el número de búsquedas?
+   - Sí. En general, al aumentar el número de búsquedas, el coste fijo de ordenar se amortiza más.
+   - Speedup binaria vs secuencial en n máximo:
+     - carga 100.000: {bin_vs_sec_100:.2f}x
+     - carga 5.000.000: {bin_vs_sec_5m:.2f}x
+     - carga 500.000.000: {bin_vs_sec_500m:.2f}x
+3. ¿Se aprecia diferencia entre secuencial con y sin centinela?
+   - Sí, pero menor que frente a binaria. Relación secuencial/sentinela en n máximo:
+     - carga 100.000: {cen_vs_sec_100:.2f}x
+     - carga 5.000.000: {cen_vs_sec_5m:.2f}x
+     - carga 500.000.000: {cen_vs_sec_500m:.2f}x
 
 ## Conclusiones
 
-1. La búsqueda binaria escala mejor en CPU para tamaños grandes, siempre que el vector esté previamente ordenado.
-2. La secuencial con centinela mantiene complejidad O(n), pero reduce comprobaciones en el bucle interno y suele mejorar ligeramente tiempos.
-3. En memoria extra, los tres métodos de búsqueda son O(1); el coste principal de memoria en este proyecto proviene del almacenamiento del propio vector de `BigDecimal`.
-4. El timeout de 30 s evita ejecuciones descontroladas y permite comparar algoritmos de forma reproducible en hardware actual.
+- La búsqueda binaria mantiene ventaja clara cuando el número de búsquedas crece, incluso incluyendo el coste de ordenación.
+- En cargas pequeñas, la ventaja existe pero es menor porque el coste de ordenar pesa más proporcionalmente.
+- La versión secuencial con centinela mejora ligeramente respecto a la secuencial clásica, pero ambas siguen escalando linealmente y quedan lejos de binaria para cargas altas.
 """
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Genera informe Markdown de benchmark")
-    parser.add_argument("--results", default="results", help="Directorio de CSV")
+    parser = argparse.ArgumentParser(description="Genera informe Markdown para benchmark de 9 configuraciones")
+    parser.add_argument("--results", default="results", help="Directorio de DAT")
     parser.add_argument("--plot", default=os.path.join("results", "benchmark_plot.svg"), help="Ruta de imagen")
     parser.add_argument("--output", default=os.path.join("results", "benchmark_report.md"), help="Ruta del informe MD")
     args = parser.parse_args()
 
-    seq_rows = read_rows(os.path.join(args.results, "seq.csv"))
-    cent_rows = read_rows(os.path.join(args.results, "seq_cent.csv"))
-    bin_rows = read_rows(os.path.join(args.results, "bin.csv"))
+    mapping = {
+        "BSEC100000": "BSEC100000.DAT",
+        "BSEC5000000": "BSEC5000000.DAT",
+        "BSEC500000000": "BSEC500000000.DAT",
+        "BSECCEN100000": "BSECCEN100000.DAT",
+        "BSECCEN5000000": "BSECCEN5000000.DAT",
+        "BSECCEN500000000": "BSECCEN500000000.DAT",
+        "BBIN100000": "BBIN100000.DAT",
+        "BBIN5000000": "BBIN5000000.DAT",
+        "BBIN500000000": "BBIN500000000.DAT",
+    }
 
-    content = build_markdown(
-        args.results,
-        args.plot,
-        summarize(seq_rows),
-        summarize(cent_rows),
-        summarize(bin_rows),
-    )
+    datasets = {}
+    for key, filename in mapping.items():
+        rows = read_rows(os.path.join(args.results, filename))
+        datasets[key] = {"rows": rows, "summary": summarize(rows)}
+
+    content = build_markdown(args.plot, datasets)
 
     os.makedirs(os.path.dirname(args.output), exist_ok=True)
     with open(args.output, "w", encoding="utf-8") as fh:

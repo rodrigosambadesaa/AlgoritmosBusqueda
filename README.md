@@ -1,11 +1,11 @@
-# AlgoritmosBusqueda (BigDecimal + benchmark con timespec_get)
+# AlgoritmosBusqueda (BigDecimal + benchmark de 9 configuraciones)
 
 Proyecto actualizado para comparar algoritmos de búsqueda con:
 
 - Medición de tiempo con `timespec_get()` (nanosegundos).
-- Vectores de prueba de hasta 50.000.000 de elementos.
-- Hasta 1.000.000 de búsquedas por ejecución.
-- Timeout automático de 30 segundos por ejecución.
+- 9 configuraciones: 3 secuenciales, 3 secuenciales con centinela y 3 binarias.
+- En binaria se cronometra: `1 ordenación quicksort + búsquedas`.
+- Modo reducido para ejecutar rápido en recuperación.
 
 ## Nombres de archivos (estándar snake_case)
 
@@ -37,21 +37,15 @@ Linux/WSL:
 make benchmark
 ```
 
-Salida CSV (en `results/`):
+Salida DAT (en `results/`):
 
-- `seq.csv`
-- `seq_cent.csv`
-- `bin.csv`
+- `BSEC100000.DAT`, `BSEC5000000.DAT`, `BSEC500000000.DAT`
+- `BSECCEN100000.DAT`, `BSECCEN5000000.DAT`, `BSECCEN500000000.DAT`
+- `BBIN100000.DAT`, `BBIN5000000.DAT`, `BBIN500000000.DAT`
 
-Formato de cada CSV:
+Formato de cada DAT (CSV con cabecera):
 
-`n,searches_requested,searches_executed,time_seconds,status`
-
-Estados posibles:
-
-- `OK`
-- `TIMEOUT`
-- `ALLOC_FAIL`
+`n,searches_label,searches_executed,time_seconds`
 
 ## Gráfica e informe comparativo en Markdown
 
@@ -65,7 +59,7 @@ Vista rápida de la gráfica:
 
 ![Gráfica de benchmark](results/benchmark_plot.svg)
 
-Generar gráfica e informe desde CSV existentes:
+Generar gráfica e informe desde DAT existentes:
 
 ```bash
 python3 plot_benchmarks.py
@@ -74,13 +68,18 @@ python3 plot_benchmarks.py
 Ejecutar benchmark + gráfica + informe en un solo paso:
 
 ```bash
-python3 plot_benchmarks.py --run-cmd "./build/bench/benchmark"
+python3 plot_benchmarks.py --run-cmd "./build/bench/benchmark --all"
 ```
 
 Archivos generados:
 
 - `results/benchmark_plot.svg`
 - `results/benchmark_report.md`
+
+## Notas de ejecución
+
+- Si ejecutas `build/bench/benchmark` sin argumentos, se abre un menú interactivo (9 opciones).
+- Para automatizar generación de todos los ficheros usa `build/bench/benchmark --all`.
 
 ## Complejidad teórica
 
