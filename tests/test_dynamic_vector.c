@@ -10,6 +10,7 @@ int main(void)
     long initial_capacity;
     vector_create(&v, 0);
     assert(v != NULL && vector_size(&v) == 0);
+    { vector_ptr_t old = v; vector_create(&v, 5); assert(v == old && vector_size(&v) == 0); }
     assert(vector_get(v, 0) == NULL);
     assert(vector_resize(v, 2));
     assert(vector_get(v, 0) == NULL && vector_get(v, 1) == NULL);
