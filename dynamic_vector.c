@@ -184,9 +184,9 @@ static int vector_replace(vector_ptr_t vector, long position, vector_element_t v
 void vector_create(vector_ptr_t *vector, long size)
 {
     vector_ptr_t created;
-    if (vector == NULL)
+    /* El llamador inicializa el puntero a NULL. No perder un vector vivo. */
+    if (vector == NULL || *vector != NULL)
         return;
-    *vector = NULL;
     if (size < 0)
         return;
     created = (vector_ptr_t)calloc(1, sizeof(*created));
