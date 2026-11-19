@@ -182,6 +182,7 @@ static int run_config(const benchmark_config_t *config)
         {
             fprintf(stderr, "Fallo de memoria en bucle de busqueda para %s\n", config->name);
             vector_free(&vector);
+            completed = 0;
             break;
         }
 
@@ -191,7 +192,10 @@ static int run_config(const benchmark_config_t *config)
         vector_free(&vector);
     }
 
-    fclose(fp);
+    if (ferror(fp))
+        completed = 0;
+    if (fclose(fp) != 0)
+        completed = 0;
     return completed;
 }
 
