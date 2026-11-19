@@ -26,7 +26,8 @@ typedef struct
 
 typedef dynamic_vector_t *vector_ptr_t;
 
-/* Devuelve NULL en *vector si la reserva falla. Acepta longitud cero. */
+/* *vector debe estar inicializado a NULL. Rechaza recrear un vector vivo
+ * para evitar fugas; liberar primero. Acepta longitud cero. */
 void vector_create(vector_ptr_t *vector, long size);
 void vector_set(vector_ptr_t vector, long position, vector_element_t value);
 void vector_swap(vector_ptr_t *vector, unsigned long first_index, unsigned long second_index);
