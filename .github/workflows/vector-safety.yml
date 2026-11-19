@@ -1,0 +1,19 @@
+name: Vector safety and practice regression
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  vector-and-practice:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Existing practice tests
+        run: make check
+      - name: Sanitizers (resize, ownership, bounds, overflow)
+        run: |
+          gcc -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer -I. tests/test_dynamic_vector.c dynamic_vector.c big_decimal.c -o /tmp/test_dynamic_vector
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 /tmp/test_dynamic_vector
+      - name: Build the original benchmark
+        run: make build/bench/benchmark
