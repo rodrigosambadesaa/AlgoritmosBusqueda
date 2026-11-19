@@ -29,6 +29,10 @@ int main(void)
     initial_capacity = vector_capacity(v);
     assert(vector_reserve(v, 12));
     assert(vector_capacity(v) >= 12 && vector_size(&v) == 2);
+    assert(vector_resize(v, 256)); /* Construye el indice de punteros. */
+    vector_set(v, 100, bd_create_from_int(88));
+    vector_set(v, 101, vector_get(v, 100));
+    assert(vector_get(v, 100) != vector_get(v, 101));
     assert(vector_resize(v, 8));
     assert(vector_get(v, 7) == NULL);
     assert(vector_resize(v, 1)); /* Debe liberar el segundo objeto. */

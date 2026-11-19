@@ -1,6 +1,7 @@
 #ifndef DYNAMIC_VECTOR_H
 #define DYNAMIC_VECTOR_H
 
+#include <stddef.h>
 #include "big_decimal.h"
 
 /* El vector es propietario de los BigDecimal almacenados.
@@ -15,6 +16,12 @@ typedef struct
     vector_element_t *data;
     long size;
     long capacity;
+    /* Indice de punteros propios: deteccion de alias O(1) amortizado. */
+    struct vector_index_slot *index_slots;
+    size_t index_capacity;
+    size_t index_count;
+    size_t index_deleted;
+    int index_disabled;
 } dynamic_vector_t;
 
 typedef dynamic_vector_t *vector_ptr_t;
