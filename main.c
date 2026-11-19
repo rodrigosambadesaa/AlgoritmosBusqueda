@@ -34,8 +34,13 @@ typedef struct
     long searches_reduced;
 } benchmark_config_t;
 
+/* La configuracion normal conserva todas las mediciones historicas. */
+#ifdef VECTOR_CI_SMOKE
+static const long BENCHMARK_SIZES[] = {8L, 32L, 128L};
+#else
 static const long BENCHMARK_SIZES[] = {
     10000L, 25000L, 50000L, 100000L, 200000L};
+#endif
 static const size_t BENCHMARK_SIZES_COUNT = sizeof(BENCHMARK_SIZES) / sizeof(BENCHMARK_SIZES[0]);
 
 static const benchmark_config_t CONFIGS[] = {
@@ -114,6 +119,7 @@ static int run_config(const benchmark_config_t *config)
     size_t i;
     char output_path[128];
     FILE *fp;
+    int completed = 1;
 
     (void)snprintf(output_path, sizeof(output_path), "results/%s", config->filename);
     fp = fopen(output_path, "w");
@@ -146,6 +152,7 @@ static int run_config(const benchmark_config_t *config)
         {
             fprintf(stderr, "Fallo de memoria para n=%ld en %s\n", n, config->name);
             vector_free(&vector);
+            completed = 0;
             break;
         }
 
@@ -185,7 +192,7 @@ static int run_config(const benchmark_config_t *config)
     }
 
     fclose(fp);
-    return 1;
+    return completed;
 }
 
 static const benchmark_config_t *find_config_by_id(int id)
@@ -229,7 +236,11 @@ static int run_all(void)
 
 int main(int argc, char **argv)
 {
+#ifdef VECTOR_CI_SMOKE
+    srand(0xC0FFEEu);
+#else
     srand((unsigned int)time(NULL));
+#endif
 
     if (!ensure_results_dir())
     {

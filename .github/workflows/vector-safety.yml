@@ -17,3 +17,12 @@ jobs:
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 /tmp/test_dynamic_vector
       - name: Build the original benchmark
         run: make build/bench/benchmark
+
+      - name: Execute every search benchmark on small deterministic vectors
+        run: |
+          gcc -std=c11 -O2 -Wall -Wextra -Werror -DVECTOR_CI_SMOKE -I. main.c dynamic_vector.c search.c quick_sort.c big_decimal.c -o "$RUNNER_TEMP/search_smoke"
+          cd "$RUNNER_TEMP"
+          ./search_smoke --all
+          for name in BSEC100000 BSEC5000000 BSEC500000000 BSECCEN100000 BSECCEN5000000 BSECCEN500000000 BBIN100000 BBIN5000000 BBIN500000000; do
+            test "$(wc -l < "results/$name.DAT")" -eq 4
+          done
